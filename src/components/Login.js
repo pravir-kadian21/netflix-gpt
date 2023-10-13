@@ -1,14 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import Header from "./Header";
+import { validateFormData } from "../utils/validate";
+import { auth } from "../utils/firebase";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
+  const dispatch = useDispatch();
+
   const [formType, setFormType] = useState("SignIn");
+  const [errors, setErrors] = useState({});
+
+  const email = useRef(null);
+  const password = useRef(null);
+  const name = useRef(null);
 
   const handleChangeFormType = () => {
     if (formType === "SignIn") setFormType("SignUp");
     else setFormType("SignIn");
   };
 
+  const handleFormSubmit = () => {
+    console.log(email, password, name);
+    const formError = {
+      ...validateFormData(
+        formType,
+        email.current.value,
+        password.current.value,
+        name?.current?.value
+      ),
+    };
+    setErrors(formError);
+    if (!Object.keys(formError).length) {
+      if (formType === "SignUp") {
+        createUserWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        )
+          .then((userCredential) => {
+            const user = userCredential.user;
+            console.log(user);
+            updateProfile(auth.currentUser, {
+              displayName: name?.current?.value,
+            })
+              .then(() => {
+                const { currentUser } = auth;
+                const { uid, displayName, email } = currentUser;
+                dispatch(addUser({ uid, displayName, email }));
+              })
+              .catch((error) => {});
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+          });
+      } else {
+        signInWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        )
+          .then((userCredential) => {
+            const user = userCredential.user;
+            const { uid, displayName, email } = user;
+            dispatch(addUser({ uid, displayName, email }));
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+          });
+      }
+    }
+  };
   return (
     <div>
       <Header />
@@ -23,29 +92,45 @@ const Login = () => {
           {formType === "SignIn" ? "Sign In" : "Sign Up"}
         </div>
         {formType === "SignUp" && (
-          <input
-            className="w-full px-4 py-3 mb-4 rounded bg-neutral-700 text-white"
-            type="text"
-            placeholder="Full Name"
-          />
+          <>
+            <input
+              className="w-full px-4 py-3 rounded bg-neutral-700 text-white"
+              type="text"
+              placeholder="Full Name"
+              ref={name}
+            />
+            <div className="text-amber-600 mb-5 text-xs pt-2">
+              {errors?.name}
+            </div>
+          </>
         )}
         <input
-          className="w-full px-4 py-3 mb-4 rounded bg-neutral-700 text-white"
+          className="w-full px-4 py-3 rounded bg-neutral-700 text-white"
           type="text"
           placeholder="Email"
+          ref={email}
         />
+        <div className="text-amber-600 mb-5 text-xs pt-2">{errors?.email}</div>
         <input
-          className="w-full px-4 py-3 mb-10 bg-neutral-700 rounded"
+          className="w-full px-4 py-3 bg-neutral-700 rounded text-white"
           type="text"
           placeholder="Password"
+          ref={password}
         />
-        <button className="bg-red-600 text-white w-full py-3 rounded mb-10">
+        <div className="text-amber-600 mb-8 text-xs pt-2">
+          {errors?.password}
+        </div>
+        <button
+          className="bg-red-600 text-white w-full py-3 rounded mb-10"
+          onClick={handleFormSubmit}
+          type="button"
+        >
           {formType === "SignIn" ? "Sign In" : "Sign Up"}
         </button>
 
         <div className="pb-16">
           <span className="text-neutral-500">
-            {formType === "SignIn" ? "New to Netflix?" : "Already a User"}
+            {formType === "SignIn" ? "New to Netflix?" : "Already a User?"}
           </span>
           <span
             className="text-white cursor-pointer"
