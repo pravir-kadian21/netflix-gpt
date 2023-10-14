@@ -15,6 +15,7 @@ const Login = () => {
 
   const [formType, setFormType] = useState("SignIn");
   const [errors, setErrors] = useState({});
+  const [authenticationError, setAuthenticationError] = useState();
 
   const email = useRef(null);
   const password = useRef(null);
@@ -26,7 +27,6 @@ const Login = () => {
   };
 
   const handleFormSubmit = () => {
-    console.log(email, password, name);
     const formError = {
       ...validateFormData(
         formType,
@@ -44,8 +44,7 @@ const Login = () => {
           password.current.value
         )
           .then((userCredential) => {
-            const user = userCredential.user;
-            console.log(user);
+            setAuthenticationError();
             updateProfile(auth.currentUser, {
               displayName: name?.current?.value,
             })
@@ -57,8 +56,9 @@ const Login = () => {
               .catch((error) => {});
           })
           .catch((error) => {
-            const errorCode = error.code;
+            debugger;
             const errorMessage = error.message;
+            setAuthenticationError(errorMessage);
           });
       } else {
         signInWithEmailAndPassword(
@@ -67,13 +67,15 @@ const Login = () => {
           password.current.value
         )
           .then((userCredential) => {
+            setAuthenticationError();
             const user = userCredential.user;
             const { uid, displayName, email } = user;
             dispatch(addUser({ uid, displayName, email }));
           })
           .catch((error) => {
-            const errorCode = error.code;
+            debugger;
             const errorMessage = error.message;
+            setAuthenticationError(errorMessage);
           });
       }
     }
@@ -121,12 +123,15 @@ const Login = () => {
           {errors?.password}
         </div>
         <button
-          className="bg-red-600 text-white w-full py-3 rounded mb-10"
+          className="bg-red-600 text-white w-full py-3 mb-2 rounded"
           onClick={handleFormSubmit}
           type="button"
         >
           {formType === "SignIn" ? "Sign In" : "Sign Up"}
         </button>
+        <div className="text-amber-600 mb-10 text-xs">
+          {authenticationError}
+        </div>
 
         <div className="pb-16">
           <span className="text-neutral-500">
