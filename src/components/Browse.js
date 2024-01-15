@@ -8,6 +8,7 @@ import { useTopRatedMovies } from "../utils/hooks/useTopRatedMovies";
 import { useUpcomingMovies } from "../utils/hooks/useUpcomingMovies";
 import { useSelector } from "react-redux";
 import GptSearchPage from "./GptSearchPage";
+import LoaderComponent from "./Loader";
 
 const Browse = () => {
   useNowPlayingMovies();
@@ -17,8 +18,11 @@ const Browse = () => {
 
   const showGPTSearchView = useSelector((store) => store.gpt.showGptSearch);
 
+  const loading = useSelector((store) => store.config.loading);
+
   return (
     <div className="overflow-x-hidden">
+      <LoaderComponent loading={loading} />
       <Header />
       {showGPTSearchView ? (
         <GptSearchPage />

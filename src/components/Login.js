@@ -56,7 +56,6 @@ const Login = () => {
               .catch((error) => {});
           })
           .catch((error) => {
-            debugger;
             const errorMessage = error.message;
             setAuthenticationError(errorMessage);
           });
@@ -73,7 +72,6 @@ const Login = () => {
             dispatch(addUser({ uid, displayName, email }));
           })
           .catch((error) => {
-            debugger;
             const errorMessage = error.message;
             setAuthenticationError(errorMessage);
           });
@@ -85,11 +83,12 @@ const Login = () => {
       <Header />
       <div className="absolute">
         <img
+          className="h-screen object-cover md:h-auto"
           src="https://assets.nflxext.com/ffe/siteui/vlv3/9db4a880-3034-4e98-bdea-5d983e86bf52/b5953637-091d-4e02-9754-2bfadc8a8f7c/IN-en-20230925-popsignuptwoweeks-perspective_alpha_website_large.jpg"
           alt="login-banner"
         />
       </div>
-      <form className="relative w-1/4 bg-black m-auto top-44 rounded px-16 pt-12 bg-opacity-90">
+      <form className="relative w-full md:w-1/4 bg-black m-auto top-44 rounded px-16 pt-12 bg-opacity-90">
         <div className="text-white text-3xl mb-8">
           {formType === "SignIn" ? "Sign In" : "Sign Up"}
         </div>

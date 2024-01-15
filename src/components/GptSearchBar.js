@@ -4,6 +4,7 @@ import lang from "../utils/languageConstants";
 import openai from "../utils/openAI";
 import { API_OPTIONS } from "../utils/constants";
 import { addGptMovies } from "../utils/gptSlice";
+import { disableLoader, enableLoader } from "../utils/configSlice";
 
 const GptSearchBar = () => {
   const dispatch = useDispatch();
@@ -16,22 +17,20 @@ const GptSearchBar = () => {
       API_OPTIONS
     );
 
-    debugger;
-
     const json = await data.json();
     return json.results;
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    debugger;
-    console.log(searchText);
+    dispatch(enableLoader());
+
     const searchQuery = `Act as a movie recommendation system and suggest movies for the query: ${searchText} and only give me names of 5 movies as a comma seperated string. Example result = Koi mil gaya,Gadar,Sholay,Don,Golmal`;
     const results = await openai.chat.completions.create({
       messages: [{ role: "user", content: searchQuery }],
       model: "gpt-3.5-turbo",
     });
-    console.log(results);
+
     const movieResult = results?.choices[0]?.message?.content;
     const movieList = movieResult.split(",");
 
@@ -45,7 +44,7 @@ const GptSearchBar = () => {
       addGptMovies({ movieNames: movieList, tmdbMovies: tmdbMovieList })
     );
 
-    console.log(tmdbMovieList);
+    dispatch(disableLoader());
   };
   const handleSearchChange = (e) => {
     setSearchText(e.target.value);
@@ -53,7 +52,7 @@ const GptSearchBar = () => {
   return (
     <div className="pt-[10%] flex justify-center">
       <form
-        className="bg-black w-1/2 grid grid-cols-12 py-6 px-4 rounded-md"
+        className="bg-black w-full md:w-1/2 grid grid-cols-12 py-6 px-4 rounded-md"
         onSubmit={handleFormSubmit}
       >
         <input

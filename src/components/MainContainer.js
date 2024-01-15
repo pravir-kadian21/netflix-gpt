@@ -10,11 +10,11 @@ const MainContainer = () => {
     dispatch(addGptMovies({ movieNames: null, tmdbMovies: null }));
   }, []);
   const movies = useSelector((store) => store.movies?.nowPlayingMovies);
-  debugger;
+
   if (!movies) return;
   const { id, title, overview } = movies[0];
   return (
-    <div>
+    <div className="md:pt-0 pt-[30%] bg-black">
       <VideoTitle title={title} overview={overview} />
       <VideoBackground movieId={id} />
     </div>
