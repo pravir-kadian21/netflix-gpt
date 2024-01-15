@@ -1,9 +1,14 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import VideoBackground from "./VideoBackground";
 import VideoTitle from "./VideoTitle";
+import { addGptMovies } from "../utils/gptSlice";
 
 const MainContainer = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(addGptMovies({ movieNames: null, tmdbMovies: null }));
+  }, []);
   const movies = useSelector((store) => store.movies?.nowPlayingMovies);
   debugger;
   if (!movies) return;

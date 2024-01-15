@@ -3,6 +3,8 @@ import MovieCard from "./MovieCard";
 
 const MovieList = ({ listTitle, movies = [] }) => {
   console.log(movies);
+  if (!movies) return;
+  debugger;
 
   return (
     <div className="pl-10 pt-6">
